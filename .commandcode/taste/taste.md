@@ -1,0 +1,4 @@
+- Communicates in Korean — instructions and conversation should be in Korean. Confidence: 0.85
+- Prefers Vite as the build tool and project scaffold for web projects. Confidence: 0.6
+- Chooses TypeScript over plain JavaScript for new web projects. Confidence: 0.7
+- Values single-file, minimal-setup deployment (no install, no complex config). Confidence: 0.5
