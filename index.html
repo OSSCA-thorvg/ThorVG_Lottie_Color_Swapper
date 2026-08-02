@@ -5,11 +5,33 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>a</title>
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <h1>ThorVG Lottie Parser</h1>
-    <input type="file" id="lottie-upload" accept="application/json,.json,.lottie" />
-    <canvas id="canvas"></canvas>
+    <div id="app-layout">
+      <header id="app-header">
+        <div class="header-text">
+          <h1>Lottie Color Swapper</h1>
+          <p class="subtitle">Lottie 파일을 업로드하고 색상을 실시간으로 편집하세요</p>
+        </div>
+      </header>
+      <div id="app-body">
+        <aside id="hierarchy-panel">
+          <div id="upload-section">
+            <label for="lottie-upload" class="upload-button">Lottie 파일 업로드</label>
+            <input type="file" id="lottie-upload" accept="application/json,.json,.lottie" />
+          </div>
+          <div id="hierarchy-tree"></div>
+        </aside>
+        <main id="render-area">
+          <div id="canvas-frame">
+            <span id="canvas-ribbon">Preview</span>
+            <canvas id="canvas"></canvas>
+          </div>
+          <span id="canvas-size"></span>
+        </main>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
