@@ -1,4 +1,5 @@
 import type { TreeNode } from './lottieSlots.ts'
+import { setSlotColor } from './renderer.ts'
 
 // Renders the color hierarchy tree into the panel: layer/group nodes are
 // expandable rows, color nodes are a swatch + sid.
@@ -15,9 +16,13 @@ function renderNode(node: TreeNode, depth: number): HTMLElement {
   if (node.sid !== undefined && node.color !== undefined) {
     row.className = 'color-row'
 
-    const swatch = document.createElement('span')
+    const sid = node.sid
+
+    const swatch = document.createElement('input')
+    swatch.type = 'color'
     swatch.className = 'color-swatch'
-    swatch.style.background = node.color
+    swatch.value = node.color
+    swatch.addEventListener('input', () => setSlotColor(sid, swatch.value))
 
     const label = document.createElement('span')
     label.className = 'color-sid'

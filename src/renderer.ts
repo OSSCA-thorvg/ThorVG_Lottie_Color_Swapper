@@ -1,4 +1,4 @@
-import ThorVG, { type Animation } from '@thorvg/webcanvas'
+import ThorVG, { type LottieAnimation } from '@thorvg/webcanvas'
 
 const CANVAS_SIZE = { width: 800, height: 800 }
 
@@ -6,7 +6,7 @@ export const TVG = await ThorVG.init({ renderer: 'gl' })
 
 export const canvas = new TVG.Canvas('#canvas', CANVAS_SIZE)
 
-let currentAnimation: Animation | null = null
+let currentAnimation: LottieAnimation | null = null
 
 const sizeLabel = document.querySelector<HTMLSpanElement>('#canvas-size')
 if (sizeLabel) {
@@ -32,4 +32,21 @@ export function renderLottie(data: string | Uint8Array) {
   animation.play(() => canvas.update().render())
 
   currentAnimation = animation
+}
+
+// Overrides a color slot on the currently loaded animation and re-renders —
+// no reload, since the sid was already registered when the JSON was loaded.
+export function setSlotColor(sid: string, hex: string) {
+  if (!currentAnimation) return
+
+  const id = currentAnimation.gen({ [sid]: { p: { a: 0, k: hexToRgba(hex) } } })
+  currentAnimation.apply(id)
+  canvas.update().render()
+}
+
+function hexToRgba(hex: string): [number, number, number, number] {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  return [r, g, b, 1]
 }

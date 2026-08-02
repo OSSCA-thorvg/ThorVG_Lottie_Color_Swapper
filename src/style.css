@@ -156,6 +156,25 @@ body {
   flex-shrink: 0;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+}
+
+.color-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+.color-swatch::-moz-color-swatch {
+  border: none;
+  border-radius: 3px;
 }
 
 .color-sid {
