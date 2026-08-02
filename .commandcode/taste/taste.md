@@ -1,4 +1,10 @@
-- Communicates in Korean — instructions and conversation should be in Korean. Confidence: 0.85
+- Communicates in English — instructions and conversation should be in English. Confidence: 0.95
 - Prefers Vite as the build tool and project scaffold for web projects. Confidence: 0.6
 - Chooses TypeScript over plain JavaScript for new web projects. Confidence: 0.7
 - Values single-file, minimal-setup deployment (no install, no complex config). Confidence: 0.5
+- Prefers step-by-step implementation plan before coding begins — "make a step for that then show me." Confidence: 0.7
+- Uses a `hacka.md` file to store project context and task descriptions; expects it to be consulted before making plans. Confidence: 0.5
+- When implementing format parsers or file handlers, inspects real example files to understand the actual structure before coding — not assumptions. Confidence: 0.7
+- When implementing a standard format (like .lottie), consults the official specification and web sources to verify assumptions before rewriting code. Confidence: 0.7
+- Prefers step-by-step implementation plan before coding begins — "make a step for that then show me." Confidence: 0.7
+- Uses a `hacka.md` file to store project context and task descriptions; expects it to be consulted before making plans. Confidence: 0.5
