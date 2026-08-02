@@ -1,35 +1,14 @@
-// Wires up the upload button and window-wide drag & drop, validates that the
-// dropped/selected file is Lottie JSON, and hands the parsed data to `onLottieData`.
-export function initFileUpload(onLottieData: (data: unknown) => void) {
+// Wires up the upload button and window-wide drag & drop, and hands the
+// picked/dropped File to `onFile`. Validating/parsing the file is `lottieLoader.ts`'s job.
+export function initFileUpload(onFile: (file: File) => void) {
   const uploadInput = document.querySelector<HTMLInputElement>('#lottie-upload')!
 
   uploadInput.addEventListener('change', () => {
     const file = uploadInput.files?.[0]
     if (!file) return
 
-    processFile(file)
+    onFile(file)
   })
-
-  async function processFile(file: File) {
-    const text = await file.text()
-
-    let data: unknown
-    try {
-      data = JSON.parse(text)
-    } catch {
-      alert('올바른 JSON 파일이 아닙니다.')
-      uploadInput.value = ''
-      return
-    }
-
-    if (!isLottieJson(data)) {
-      alert('Lottie 형식의 파일이 아닙니다.')
-      uploadInput.value = ''
-      return
-    }
-
-    onLottieData(data)
-  }
 
   const dropOverlay = document.querySelector<HTMLDivElement>('#drop-overlay')!
   // dragenter/dragleave fire repeatedly as the cursor crosses child elements,
@@ -64,24 +43,6 @@ export function initFileUpload(onLottieData: (data: unknown) => void) {
     const file = e.dataTransfer?.files?.[0]
     if (!file) return
 
-    processFile(file)
+    onFile(file)
   })
-}
-
-// Shallow signature check for the top-level fields every bodymovin/Lottie JSON has.
-// Deeper validation of layer internals is left to the parser.
-function isLottieJson(data: unknown): boolean {
-  if (typeof data !== 'object' || data === null) return false
-
-  const obj = data as Record<string, unknown>
-
-  return (
-    typeof obj.v === 'string' &&
-    typeof obj.fr === 'number' &&
-    typeof obj.ip === 'number' &&
-    typeof obj.op === 'number' &&
-    typeof obj.w === 'number' &&
-    typeof obj.h === 'number' &&
-    Array.isArray(obj.layers)
-  )
 }
