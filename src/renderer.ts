@@ -28,6 +28,16 @@ export function renderLottie(data: string | Uint8Array) {
     throw new Error('Failed to load Lottie animation')
   }
 
+  // The Lottie's own composition size (`w`/`h` in the JSON) rarely matches the
+  // canvas, so scale it to fit inside CANVAS_SIZE (preserving aspect ratio) and
+  // translate it so the scaled result is centered instead of pinned to (0, 0).
+  const { width, height } = picture.size()
+  const scale = Math.min(1, CANVAS_SIZE.width / width, CANVAS_SIZE.height / height)
+  const scaledWidth = width * scale
+  const scaledHeight = height * scale
+  picture.size(scaledWidth, scaledHeight)
+  picture.translate((CANVAS_SIZE.width - scaledWidth) / 2, (CANVAS_SIZE.height - scaledHeight) / 2)
+
   canvas.add(picture)
   animation.play(() => canvas.update().render())
 
