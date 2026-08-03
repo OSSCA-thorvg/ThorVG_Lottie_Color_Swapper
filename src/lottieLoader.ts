@@ -2,13 +2,15 @@ import JSZip from 'jszip'
 
 export type LottieData = Record<string, unknown>
 
-type AnimationEntry = {
+type DotLottieVersion = '1' | '2'
+
+type AnimationMetadata = {
   id: string
 }
 
 type DotLottieManifest = {
   version: string
-  animations: AnimationEntry[]
+  animations: AnimationMetadata[]
   activeAnimationId?: string
   initial?: {
     animation?: string
@@ -50,25 +52,17 @@ async function loadLottieFile(file: File): Promise<string> {
   }
 
   const manifestText = await manifestEntry.async('string')
-  const manifest = JSON.parse(manifestText)
+  const manifest = parseManifest(JSON.parse(manifestText))
+  const version = getDotLottieVersion(manifest.version)
+  const selectedId = selectAnimationId(manifest, version)
+  const animationPath = getAnimationPath(selectedId, version)
+  const animationEntry = zip.file(animationPath)
 
-  if (!isDotLottieManifest(manifest)) {
-    throw new Error('manifest.json is not a valid dotLottie manifest')
+  if (!animationEntry) {
+    throw new Error(`Animation file not found: ${animationPath}`)
   }
 
-  const firstAnimation = manifest.animations[0]
-  const selectedId = manifest.version === '1'
-    ? manifest.activeAnimationId
-    : manifest.initial?.animation
-  const selectedAnimation = manifest.animations.find(({ id }) => id === selectedId) ?? firstAnimation
-  const animationDirectory = manifest.version === '1' ? 'animations' : 'a'
-  const animPath = `${animationDirectory}/${selectedAnimation.id}.json`
-  const animEntry = zip.file(animPath)
-  if (!animEntry) {
-    throw new Error(`Animation file not found: ${animPath}`)
-  }
-
-  const text = await animEntry.async('string')
+  const text = await animationEntry.async('string')
   const data = JSON.parse(text)
 
   if (!isLottieJson(data)) {
@@ -78,20 +72,76 @@ async function loadLottieFile(file: File): Promise<string> {
   return text
 }
 
-function isDotLottieManifest(data: unknown): data is DotLottieManifest {
-  if (typeof data !== 'object' || data === null) return false
-
-  const obj = data as Record<string, unknown>
-  if (obj.version !== '1' && obj.version !== '2') {
-    throw new Error(`Unsupported dotLottie version: ${String(obj.version)}`)
+function parseManifest(data: unknown): DotLottieManifest {
+  if (typeof data !== 'object' || data === null) {
+    throw new Error('manifest.json is not a valid object')
   }
 
-  if (!Array.isArray(obj.animations) || obj.animations.length === 0) return false
+  const manifest = data as Record<string, unknown>
+  if (typeof manifest.version !== 'string') {
+    throw new Error('manifest.json does not specify a version')
+  }
 
-  return obj.animations.every((animation) => {
-    if (typeof animation !== 'object' || animation === null) return false
-    return typeof (animation as Record<string, unknown>).id === 'string'
+  if (!Array.isArray(manifest.animations) || manifest.animations.length === 0) {
+    throw new Error('manifest.json does not list any animations')
+  }
+
+  const animations = manifest.animations.map((animation) => {
+    if (
+      typeof animation !== 'object' ||
+      animation === null ||
+      typeof (animation as Record<string, unknown>).id !== 'string' ||
+      (animation as Record<string, unknown>).id === ''
+    ) {
+      throw new Error('manifest.json contains an invalid animation')
+    }
+
+    return { id: (animation as Record<string, string>).id }
   })
+
+  const activeAnimationId = manifest.activeAnimationId
+  if (activeAnimationId !== undefined && typeof activeAnimationId !== 'string') {
+    throw new Error('manifest.json contains an invalid activeAnimationId')
+  }
+
+  const initial = manifest.initial
+  if (initial !== undefined && (typeof initial !== 'object' || initial === null)) {
+    throw new Error('manifest.json contains an invalid initial object')
+  }
+
+  const initialAnimation = (initial as Record<string, unknown> | undefined)?.animation
+  if (initialAnimation !== undefined && typeof initialAnimation !== 'string') {
+    throw new Error('manifest.json contains an invalid initial animation')
+  }
+
+  return {
+    version: manifest.version,
+    animations,
+    ...(activeAnimationId === undefined ? {} : { activeAnimationId }),
+    ...(initialAnimation === undefined ? {} : { initial: { animation: initialAnimation } }),
+  }
+}
+
+function getDotLottieVersion(version: string): DotLottieVersion {
+  if (version === '1' || version === '1.0') return '1'
+  if (version === '2' || version === '2.0') return '2'
+
+  throw new Error(`Unsupported dotLottie version: ${version}`)
+}
+
+function selectAnimationId(manifest: DotLottieManifest, version: DotLottieVersion): string {
+  const requestedId = version === '1' ? manifest.activeAnimationId : manifest.initial?.animation
+  const selectedId = requestedId ?? manifest.animations[0].id
+
+  if (!manifest.animations.some((animation) => animation.id === selectedId)) {
+    throw new Error(`Animation is not listed in manifest.json: ${selectedId}`)
+  }
+
+  return selectedId
+}
+
+function getAnimationPath(id: string, version: DotLottieVersion): string {
+  return `${version === '1' ? 'animations' : 'a'}/${id}.json`
 }
 
 export function isLottieJson(data: unknown): data is LottieData {
