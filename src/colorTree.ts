@@ -4,18 +4,47 @@ import type { TreeNode } from './lottieSlots.ts'
 // expandable rows, color nodes are a swatch + sid. Doesn't touch the renderer
 // or export document directly — onColorChange lets main.ts decide what a color
 // edit should update.
-export function renderColorTree(tree: TreeNode[], onColorChange: (sid: string, hex: string) => void) {
+export function renderColorTree(
+  tree: TreeNode[],
+  onColorChange: (sid: string, hex: string) => void,
+  onColorSelect: (sid: string | null) => void,
+) {
   const container = document.querySelector<HTMLDivElement>('#hierarchy-tree')!
-  container.replaceChildren(...tree.map((node) => renderNode(node, 0, onColorChange)))
+  let selectedSid: string | null = null
+
+  const selectSid = (sid: string) => {
+    selectedSid = selectedSid === sid ? null : sid
+    container.querySelectorAll<HTMLElement>('.color-row.selected').forEach((row) => {
+      row.classList.remove('selected')
+      row.setAttribute('aria-selected', 'false')
+    })
+    if (selectedSid) {
+      const selectedRow = container.querySelector<HTMLElement>(`[data-sid="${CSS.escape(selectedSid)}"]`)
+      selectedRow?.classList.add('selected')
+      selectedRow?.setAttribute('aria-selected', 'true')
+    }
+    onColorSelect(selectedSid)
+  }
+
+  container.replaceChildren(...tree.map((node) => renderNode(node, 0, onColorChange, selectSid)))
 }
 
-function renderNode(node: TreeNode, depth: number, onColorChange: (sid: string, hex: string) => void): HTMLElement {
+function renderNode(
+  node: TreeNode,
+  depth: number,
+  onColorChange: (sid: string, hex: string) => void,
+  onColorSelect: (sid: string) => void,
+): HTMLElement {
   const wrapper = document.createElement('div')
   const row = document.createElement('div')
   row.style.paddingLeft = `${depth * 14}px`
 
   if (node.sid !== undefined && node.color !== undefined) {
     row.className = 'color-row'
+    row.dataset.sid = node.sid
+    row.setAttribute('role', 'button')
+    row.setAttribute('tabindex', '0')
+    row.setAttribute('aria-selected', 'false')
 
     const sid = node.sid
 
@@ -23,7 +52,16 @@ function renderNode(node: TreeNode, depth: number, onColorChange: (sid: string, 
     swatch.type = 'color'
     swatch.className = 'color-swatch'
     swatch.value = node.color
+    swatch.addEventListener('click', (event) => event.stopPropagation())
     swatch.addEventListener('input', () => onColorChange(sid, swatch.value))
+
+    row.addEventListener('click', () => onColorSelect(sid))
+    row.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        onColorSelect(sid)
+      }
+    })
 
     const label = document.createElement('span')
     label.className = 'color-sid'
@@ -49,7 +87,9 @@ function renderNode(node: TreeNode, depth: number, onColorChange: (sid: string, 
 
   const childrenContainer = document.createElement('div')
   childrenContainer.className = 'tree-children'
-  childrenContainer.append(...node.children.map((child) => renderNode(child, depth + 1, onColorChange)))
+  childrenContainer.append(
+    ...node.children.map((child) => renderNode(child, depth + 1, onColorChange, onColorSelect)),
+  )
   wrapper.appendChild(childrenContainer)
 
   row.addEventListener('click', () => {

@@ -178,6 +178,16 @@ body {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.color-row.selected {
+  background: rgba(255, 170, 0, 0.18);
+  color: #ffd27a;
+  outline: 1px solid rgba(255, 170, 0, 0.55);
+}
+
+.color-row:focus-visible {
+  outline: 1px solid var(--accent);
+}
+
 .color-swatch {
   width: 14px;
   height: 14px;
