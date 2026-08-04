@@ -1,14 +1,15 @@
 import type { TreeNode } from './lottieSlots.ts'
-import { setSlotColor } from './renderer.ts'
 
 // Renders the color hierarchy tree into the panel: layer/group nodes are
-// expandable rows, color nodes are a swatch + sid.
-export function renderColorTree(tree: TreeNode[]) {
+// expandable rows, color nodes are a swatch + sid. Doesn't touch the renderer
+// or export document directly — onColorChange lets main.ts decide what a color
+// edit should update.
+export function renderColorTree(tree: TreeNode[], onColorChange: (sid: string, hex: string) => void) {
   const container = document.querySelector<HTMLDivElement>('#hierarchy-tree')!
-  container.replaceChildren(...tree.map((node) => renderNode(node, 0)))
+  container.replaceChildren(...tree.map((node) => renderNode(node, 0, onColorChange)))
 }
 
-function renderNode(node: TreeNode, depth: number): HTMLElement {
+function renderNode(node: TreeNode, depth: number, onColorChange: (sid: string, hex: string) => void): HTMLElement {
   const wrapper = document.createElement('div')
   const row = document.createElement('div')
   row.style.paddingLeft = `${depth * 14}px`
@@ -22,7 +23,7 @@ function renderNode(node: TreeNode, depth: number): HTMLElement {
     swatch.type = 'color'
     swatch.className = 'color-swatch'
     swatch.value = node.color
-    swatch.addEventListener('input', () => setSlotColor(sid, swatch.value))
+    swatch.addEventListener('input', () => onColorChange(sid, swatch.value))
 
     const label = document.createElement('span')
     label.className = 'color-sid'
@@ -48,7 +49,7 @@ function renderNode(node: TreeNode, depth: number): HTMLElement {
 
   const childrenContainer = document.createElement('div')
   childrenContainer.className = 'tree-children'
-  childrenContainer.append(...node.children.map((child) => renderNode(child, depth + 1)))
+  childrenContainer.append(...node.children.map((child) => renderNode(child, depth + 1, onColorChange)))
   wrapper.appendChild(childrenContainer)
 
   row.addEventListener('click', () => {

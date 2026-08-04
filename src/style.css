@@ -101,6 +101,34 @@ body {
   background: rgba(170, 59, 255, 0.08);
 }
 
+#export-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    background 0.2s;
+}
+
+#export-btn:hover:not(:disabled) {
+  background: #9526e6;
+}
+
+#export-btn:disabled {
+  background: var(--panel-bg);
+  color: var(--text-muted);
+  border-color: var(--border);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 #hierarchy-tree {
   flex: 1;
   padding: 8px;

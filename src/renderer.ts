@@ -1,4 +1,5 @@
 import ThorVG, { type LottieAnimation, type AnimationInfo } from '@thorvg/webcanvas'
+import { hexToRgba } from './colorUtils.ts'
 
 const CANVAS_SIZE = { width: 800, height: 800 }
 
@@ -93,11 +94,4 @@ export function getAnimationInfo(): AnimationInfo | null {
 
 export function onAnimationFrame(listener: (frame: number) => void) {
   frameListener = listener
-}
-
-function hexToRgba(hex: string): [number, number, number, number] {
-  const r = parseInt(hex.slice(1, 3), 16) / 255
-  const g = parseInt(hex.slice(3, 5), 16) / 255
-  const b = parseInt(hex.slice(5, 7), 16) / 255
-  return [r, g, b, 1]
 }
