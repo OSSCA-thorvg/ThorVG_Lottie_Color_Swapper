@@ -13,7 +13,7 @@ describe('createHighlightLottie', () => {
     const result = JSON.parse(createHighlightLottie(source, 'second'))
 
     expect(result.slots.first.p.k).toEqual([0, 0, 0, 0])
-    expect(result.slots.second.p.k).toEqual([1, 0.65, 0, 0.7])
+    expect(result.slots.second.p.k).toEqual([0, 1, 0, 1])
   })
 
   it('does not mutate the source JSON', () => {

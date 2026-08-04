@@ -8,9 +8,10 @@ export function renderColorTree(
   tree: TreeNode[],
   onColorChange: (sid: string, hex: string) => void,
   onColorSelect: (sid: string | null) => void,
+  initialSelectedSid: string | null = null,
 ) {
   const container = document.querySelector<HTMLDivElement>('#hierarchy-tree')!
-  let selectedSid: string | null = null
+  let selectedSid = initialSelectedSid
 
   const selectSid = (sid: string) => {
     selectedSid = selectedSid === sid ? null : sid
@@ -27,6 +28,11 @@ export function renderColorTree(
   }
 
   container.replaceChildren(...tree.map((node) => renderNode(node, 0, onColorChange, selectSid)))
+  if (selectedSid) {
+    const selectedRow = container.querySelector<HTMLElement>(`[data-sid="${CSS.escape(selectedSid)}"]`)
+    selectedRow?.classList.add('selected')
+    selectedRow?.setAttribute('aria-selected', 'true')
+  }
 }
 
 function renderNode(
@@ -53,7 +59,7 @@ function renderNode(
     swatch.className = 'color-swatch'
     swatch.value = node.color
     swatch.addEventListener('click', (event) => event.stopPropagation())
-    swatch.addEventListener('input', () => onColorChange(sid, swatch.value))
+    swatch.addEventListener('change', () => onColorChange(sid, swatch.value))
 
     row.addEventListener('click', () => onColorSelect(sid))
     row.addEventListener('keydown', (event) => {

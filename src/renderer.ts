@@ -97,6 +97,32 @@ export function clearHighlight() {
 
 // Overrides a color slot on the currently loaded animation and re-renders —
 // no reload, since the sid was already registered when the JSON was loaded.
+export function applySlotColors(json: string) {
+  if (!currentAnimation) return
+
+  const data = JSON.parse(json) as Record<string, unknown>
+  const slots = data.slots
+  if (typeof slots !== 'object' || slots === null) return
+
+  const overrides: Record<string, { p: { a: 0; k: number[] } }> = {}
+  for (const [sid, slot] of Object.entries(slots as Record<string, unknown>)) {
+    if (typeof slot !== 'object' || slot === null) continue
+
+    const property = (slot as Record<string, unknown>).p
+    if (typeof property !== 'object' || property === null) continue
+
+    const value = (property as Record<string, unknown>).k
+    if (Array.isArray(value)) overrides[sid] = { p: { a: 0, k: value } }
+  }
+
+  if (Object.keys(overrides).length === 0) return
+
+  const id = currentAnimation.gen(overrides)
+  currentAnimation.apply(id)
+  highlightAnimation?.frame(currentAnimation.frame())
+  canvas.update().render()
+}
+
 export function setSlotColor(sid: string, hex: string) {
   if (!currentAnimation) return
 

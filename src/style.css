@@ -101,6 +101,30 @@ body {
   background: rgba(170, 59, 255, 0.08);
 }
 
+#color-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#initialize-colors-btn,
+#undo-btn,
+#export-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-bg);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    background 0.2s,
+    border-color 0.2s;
+}
+
 #export-btn {
   width: 100%;
   margin-top: 8px;
@@ -117,16 +141,41 @@ body {
     background 0.2s;
 }
 
+#initialize-colors-btn:hover:not(:disabled),
+#undo-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(170, 59, 255, 0.08);
+}
+
 #export-btn:hover:not(:disabled) {
   background: #9526e6;
 }
 
+#initialize-colors-btn:disabled,
+#undo-btn:disabled,
 #export-btn:disabled {
   background: var(--panel-bg);
   color: var(--text-muted);
   border-color: var(--border);
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+#notification {
+  min-height: 18px;
+  margin-top: 8px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: transparent;
+  font-size: 12px;
+  text-align: center;
+}
+
+#notification.visible {
+  border-color: var(--border);
+  background: rgba(170, 59, 255, 0.12);
+  color: var(--text);
 }
 
 #hierarchy-tree {
