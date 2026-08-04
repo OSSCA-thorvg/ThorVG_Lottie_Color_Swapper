@@ -20,7 +20,12 @@
           <div id="upload-section">
             <label for="lottie-upload" class="upload-button">Lottie 파일 업로드</label>
             <input type="file" id="lottie-upload" accept="application/json,.json,.lottie" />
+            <div id="color-actions">
+              <button id="initialize-colors-btn" type="button" disabled>색상 초기화</button>
+              <button id="undo-btn" type="button" disabled>실행 취소</button>
+            </div>
             <button id="export-btn" type="button" disabled>JSON으로 내보내기</button>
+            <div id="notification" role="status" aria-live="polite"></div>
           </div>
           <div id="hierarchy-tree"></div>
         </aside>

@@ -14,6 +14,10 @@ export function setExportDocument(json: string, sourceFileName: string) {
 
 // Mirrors a color-tree edit into the stored document's `slots[sid].p.k`, the
 // same field ensureSlots() reads when building the color tree.
+export function updateExportDocument(json: string) {
+  currentDoc = JSON.parse(json) as Record<string, unknown>
+}
+
 export function updateExportColor(sid: string, hex: string) {
   if (!currentDoc) return
 

@@ -1,4 +1,3 @@
-const HIGHLIGHT_RGBA = [1, 0.65, 0, 0.7]
 const TRANSPARENT_RGBA = [0, 0, 0, 0]
 
 export function createHighlightLottie(jsonText: string, selectedSid: string): string {
@@ -16,7 +15,7 @@ export function createHighlightLottie(jsonText: string, selectedSid: string): st
     const value = property as Record<string, unknown>
     if (!Array.isArray(value.k)) continue
 
-    value.k = sid === selectedSid ? HIGHLIGHT_RGBA : TRANSPARENT_RGBA
+    if (sid !== selectedSid) value.k = TRANSPARENT_RGBA
   }
 
   return JSON.stringify(data)
