@@ -28,7 +28,6 @@ const initializeColorsBtn = document.querySelector<HTMLButtonElement>('#initiali
 const undoBtn = document.querySelector<HTMLButtonElement>('#undo-btn')!
 const notification = document.querySelector<HTMLDivElement>('#notification')!
 const cvdSelect = document.querySelector<HTMLSelectElement>('#cvd-select')!
-const cvdExportBtn = document.querySelector<HTMLButtonElement>('#cvd-export-btn')!
 let currentJson: string | null = null
 let baselineJson: string | null = null
 let selectedSid: string | null = null
@@ -39,8 +38,8 @@ let notificationTimer: ReturnType<typeof setTimeout> | null = null
 
 initFileUpload(handleFile)
 initPlaybackControls()
-initCvdControls(handleCvdModeChange, handleCvdExport)
-exportBtn.addEventListener('click', downloadExport)
+initCvdControls(handleCvdModeChange)
+exportBtn.addEventListener('click', handleExport)
 initializeColorsBtn.addEventListener('click', initializeColors)
 undoBtn.addEventListener('click', undoColorChange)
 window.addEventListener('keydown', handleUndoShortcut)
@@ -64,7 +63,6 @@ async function handleFile(file: File) {
     updateActionButtons()
     exportBtn.disabled = false
     cvdSelect.disabled = false
-    cvdExportBtn.disabled = false
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to load Lottie file'
     alert(message)
@@ -164,9 +162,20 @@ function handleCvdModeChange(mode: CvdMode) {
   refreshColorState()
 }
 
-function handleCvdExport(mode: CvdMode) {
+// One export button for both versions: it saves whatever the canvas is
+// currently showing, which the correction dropdown already decides. The
+// filename carries the mode, so the two versions never overwrite each other.
+function handleExport() {
+  if (cvdMode === 'none') {
+    downloadExport()
+    showNotification('원본 색상 그대로 내보냈습니다.')
+    return
+  }
+
   if (!currentJson) return
-  downloadAccessibleExport(daltonizeLottieJson(currentJson, mode), mode)
+  downloadAccessibleExport(daltonizeLottieJson(currentJson, cvdMode), cvdMode)
+  // Label comes from the <option> so it can't drift out of sync with the UI.
+  showNotification(`${cvdSelect.selectedOptions[0]?.textContent ?? ''} 버전을 내보냈습니다.`)
 }
 
 function refreshColorState() {

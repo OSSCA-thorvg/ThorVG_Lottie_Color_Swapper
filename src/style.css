@@ -347,28 +347,7 @@ body {
   font-size: 13px;
 }
 
-#cvd-export-btn {
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--panel-bg);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    border-color 0.2s,
-    background 0.2s;
-}
-
-#cvd-export-btn:hover:not(:disabled) {
-  border-color: var(--accent);
-  background: rgba(170, 59, 255, 0.08);
-}
-
-#cvd-select:disabled,
-#cvd-export-btn:disabled {
+#cvd-select:disabled {
   color: var(--text-muted);
   cursor: not-allowed;
   opacity: 0.6;
