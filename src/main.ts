@@ -18,10 +18,10 @@ import {
   updateExportColor,
   updateExportDocument,
 } from './lottieExport.ts'
-import { hexToRgba } from './colorUtils.ts'
+import { hexToRgba, rgbaToHex } from './colorUtils.ts'
 import { createColorHistory } from './colorHistory.ts'
 import { initCvdControls } from './cvdControls.ts'
-import { daltonizeLottieJson, type CvdMode } from './cvdCorrection.ts'
+import { daltonizeColor, daltonizeLottieJson, type CvdMode } from './cvdCorrection.ts'
 
 const exportBtn = document.querySelector<HTMLButtonElement>('#export-btn')!
 const initializeColorsBtn = document.querySelector<HTMLButtonElement>('#initialize-colors-btn')!
@@ -82,9 +82,19 @@ function updateColor(sid: string, hex: string): boolean {
 
   property.k = hexToRgba(hex)
   currentJson = JSON.stringify(data)
-  setSlotColor(sid, hex)
+  setSlotColor(sid, canvasHex(hex))
   updateExportColor(sid, hex)
   return true
+}
+
+// While a CVD mode is on, the canvas shows the corrected color — but only the
+// canvas. currentJson, the export document and the undo history all keep the
+// color the user actually picked. Live preview goes straight to the renderer
+// without passing through refreshColorState(), so the correction has to be
+// applied here too or the canvas would jump on mouse-up.
+function canvasHex(hex: string): string {
+  if (cvdMode === 'none') return hex
+  return rgbaToHex(daltonizeColor(hexToRgba(hex), cvdMode))
 }
 
 function handleColorPreview(sid: string, hex: string) {
