@@ -27,6 +27,7 @@ const notification = document.querySelector<HTMLDivElement>('#notification')!
 let currentJson: string | null = null
 let baselineJson: string | null = null
 let selectedSid: string | null = null
+let pendingColorEdit: { sid: string; snapshot: string } | null = null
 const colorHistory = createColorHistory()
 let notificationTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -44,8 +45,9 @@ async function handleFile(file: File) {
     currentJson = json
     baselineJson = json
     colorHistory.clear()
+    pendingColorEdit = null
     selectedSid = null
-    renderColorTree(tree, handleColorChange, handleColorSelect)
+    renderColorTree(tree, handleColorPreview, handleColorChange, handleColorSelect)
     renderLottie(json)
     clearHighlight()
     resetPlaybackUI()
@@ -58,23 +60,39 @@ async function handleFile(file: File) {
   }
 }
 
-function handleColorChange(sid: string, hex: string) {
-  if (!currentJson) return
+function updateColor(sid: string, hex: string): boolean {
+  if (!currentJson) return false
 
   const data = JSON.parse(currentJson) as Record<string, unknown>
   const slots = data.slots as Record<string, unknown> | undefined
   const slot = slots?.[sid] as Record<string, unknown> | undefined
   const property = slot?.p as Record<string, unknown> | undefined
-  if (!property) return
-
-  colorHistory.record(currentJson)
-  updateActionButtons()
-  showNotification('색상을 변경했습니다.')
+  if (!property) return false
 
   property.k = hexToRgba(hex)
   currentJson = JSON.stringify(data)
   setSlotColor(sid, hex)
   updateExportColor(sid, hex)
+  return true
+}
+
+function handleColorPreview(sid: string, hex: string) {
+  if (!currentJson) return
+  if (!pendingColorEdit || pendingColorEdit.sid !== sid) {
+    pendingColorEdit = { sid, snapshot: currentJson }
+  }
+  updateColor(sid, hex)
+}
+
+function handleColorChange(sid: string, hex: string) {
+  if (!currentJson) return
+
+  const snapshot = pendingColorEdit?.sid === sid ? pendingColorEdit.snapshot : currentJson
+  pendingColorEdit = null
+  if (!updateColor(sid, hex)) return
+
+  colorHistory.record(snapshot)
+  showNotification('색상을 변경했습니다.')
   refreshColorState()
 }
 
@@ -95,6 +113,7 @@ function initializeColors() {
 
   currentJson = baselineJson
   colorHistory.clear()
+  pendingColorEdit = null
   refreshColorState()
   showNotification('색상을 업로드 당시 원래 색상으로 초기화했습니다.')
 }
@@ -107,6 +126,7 @@ function undoColorChange() {
   }
 
   currentJson = previousJson
+  pendingColorEdit = null
   refreshColorState()
   showNotification('최근 색상 변경만 실행 취소했습니다.')
 }
@@ -122,7 +142,7 @@ function refreshColorState() {
   if (!currentJson) return
 
   const { tree } = ensureSlots(currentJson)
-  renderColorTree(tree, handleColorChange, handleColorSelect, selectedSid)
+  renderColorTree(tree, handleColorPreview, handleColorChange, handleColorSelect, selectedSid)
   applySlotColors(currentJson)
   updateExportDocument(currentJson)
   if (selectedSid) highlightSid(currentJson, selectedSid)
