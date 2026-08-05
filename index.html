@@ -12,7 +12,9 @@
       <header id="app-header">
         <div class="header-text">
           <h1>Lottie Color Swapper</h1>
-          <p class="subtitle">Lottie 파일을 업로드하고 색상을 실시간으로 편집하세요</p>
+          <p class="subtitle">
+            파일을 업로드해 색상을 직접 편집하거나, 색각이상 보정을 적용하여 다운로드할 수 있습니다
+          </p>
         </div>
       </header>
       <div id="app-body">
@@ -36,13 +38,22 @@
           </div>
           <span id="canvas-size"></span>
           <div id="cvd-controls">
-            <label for="cvd-select">접근성 보정</label>
+            <label for="cvd-select">색각이상 보정</label>
             <select id="cvd-select" disabled>
               <option value="none">없음</option>
               <option value="protanopia">적색맹용 보정</option>
               <option value="deuteranopia">녹색맹용 보정</option>
               <option value="tritanopia">청색맹용 보정</option>
             </select>
+            <p id="cvd-credit">
+              색각 모델:
+              <a
+                href="https://vision.psychol.cam.ac.uk/jdmollon/papers/colourmaps.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Viénot, Brettel &amp; Mollon (1999)</a
+              >
+            </p>
           </div>
           <div id="playback-controls">
             <button id="play-pause-btn" type="button" aria-label="재생/일시정지">⏸</button>

@@ -326,10 +326,29 @@ body {
 #cvd-controls {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   width: 100%;
   max-width: 500px;
   font-size: 13px;
+}
+
+/* Sits on its own line under the dropdown: the model credit belongs next to
+   the claim it backs, but must not compete with the control itself. */
+#cvd-credit {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+#cvd-credit a {
+  color: inherit;
+  text-underline-offset: 2px;
+}
+
+#cvd-credit a:hover {
+  color: var(--accent);
 }
 
 #cvd-controls label {
