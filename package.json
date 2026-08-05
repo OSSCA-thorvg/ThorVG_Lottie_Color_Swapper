@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "vitest run",
+    "verify:cvd": "vitest run src/cvdVerification.test.ts --reporter=verbose",
     "preview": "vite preview"
   },
   "devDependencies": {

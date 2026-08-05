@@ -35,6 +35,16 @@
             <canvas id="canvas"></canvas>
           </div>
           <span id="canvas-size"></span>
+          <div id="cvd-controls">
+            <label for="cvd-select">접근성 보정</label>
+            <select id="cvd-select" disabled>
+              <option value="none">없음</option>
+              <option value="protanopia">적색맹용 보정</option>
+              <option value="deuteranopia">녹색맹용 보정</option>
+              <option value="tritanopia">청색맹용 보정</option>
+            </select>
+            <button id="cvd-export-btn" type="button" disabled>접근성 버전으로 내보내기</button>
+          </div>
           <div id="playback-controls">
             <button id="play-pause-btn" type="button" aria-label="재생/일시정지">⏸</button>
             <button id="stop-btn" type="button" aria-label="정지">⏹</button>

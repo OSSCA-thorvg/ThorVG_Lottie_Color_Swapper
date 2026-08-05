@@ -29,18 +29,27 @@ export function updateExportColor(sid: string, hex: string) {
   p.k = hexToRgba(hex)
 }
 
-export function downloadExport() {
-  if (!currentDoc) return
-
-  const blob = new Blob([JSON.stringify(currentDoc)], { type: 'application/json' })
+function saveJsonFile(jsonText: string, fileName: string) {
+  const blob = new Blob([jsonText], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
 
   const link = document.createElement('a')
   link.href = url
-  link.download = currentFileName
+  link.download = fileName
   link.click()
 
   URL.revokeObjectURL(url)
+}
+
+export function downloadExport() {
+  if (!currentDoc) return
+  saveJsonFile(JSON.stringify(currentDoc), currentFileName)
+}
+
+// Shares this module's file-naming/download plumbing for the CVD-corrected
+// accessibility export; the color correction itself lives in cvdCorrection.ts.
+export function downloadAccessibleExport(json: string, mode: string) {
+  saveJsonFile(json, currentFileName.replace(/\.json$/i, `-${mode}.json`))
 }
 
 // .lottie sources are exported as plain .json — this tool only edits colors in

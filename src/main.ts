@@ -12,6 +12,7 @@ import {
 } from './renderer.ts'
 import { initPlaybackControls, resetPlaybackUI } from './playbackControls.ts'
 import {
+  downloadAccessibleExport,
   downloadExport,
   setExportDocument,
   updateExportColor,
@@ -19,20 +20,26 @@ import {
 } from './lottieExport.ts'
 import { hexToRgba } from './colorUtils.ts'
 import { createColorHistory } from './colorHistory.ts'
+import { initCvdControls } from './cvdControls.ts'
+import { daltonizeLottieJson, type CvdMode } from './cvdCorrection.ts'
 
 const exportBtn = document.querySelector<HTMLButtonElement>('#export-btn')!
 const initializeColorsBtn = document.querySelector<HTMLButtonElement>('#initialize-colors-btn')!
 const undoBtn = document.querySelector<HTMLButtonElement>('#undo-btn')!
 const notification = document.querySelector<HTMLDivElement>('#notification')!
+const cvdSelect = document.querySelector<HTMLSelectElement>('#cvd-select')!
+const cvdExportBtn = document.querySelector<HTMLButtonElement>('#cvd-export-btn')!
 let currentJson: string | null = null
 let baselineJson: string | null = null
 let selectedSid: string | null = null
 let pendingColorEdit: { sid: string; snapshot: string } | null = null
+let cvdMode: CvdMode = 'none'
 const colorHistory = createColorHistory()
 let notificationTimer: ReturnType<typeof setTimeout> | null = null
 
 initFileUpload(handleFile)
 initPlaybackControls()
+initCvdControls(handleCvdModeChange, handleCvdExport)
 exportBtn.addEventListener('click', downloadExport)
 initializeColorsBtn.addEventListener('click', initializeColors)
 undoBtn.addEventListener('click', undoColorChange)
@@ -47,6 +54,8 @@ async function handleFile(file: File) {
     colorHistory.clear()
     pendingColorEdit = null
     selectedSid = null
+    cvdMode = 'none'
+    cvdSelect.value = 'none'
     renderColorTree(tree, handleColorPreview, handleColorChange, handleColorSelect)
     renderLottie(json)
     clearHighlight()
@@ -54,6 +63,8 @@ async function handleFile(file: File) {
     setExportDocument(json, file.name)
     updateActionButtons()
     exportBtn.disabled = false
+    cvdSelect.disabled = false
+    cvdExportBtn.disabled = false
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to load Lottie file'
     alert(message)
@@ -138,12 +149,22 @@ function handleUndoShortcut(event: KeyboardEvent) {
   }
 }
 
+function handleCvdModeChange(mode: CvdMode) {
+  cvdMode = mode
+  refreshColorState()
+}
+
+function handleCvdExport(mode: CvdMode) {
+  if (!currentJson) return
+  downloadAccessibleExport(daltonizeLottieJson(currentJson, mode), mode)
+}
+
 function refreshColorState() {
   if (!currentJson) return
 
   const { tree } = ensureSlots(currentJson)
   renderColorTree(tree, handleColorPreview, handleColorChange, handleColorSelect, selectedSid)
-  applySlotColors(currentJson)
+  applySlotColors(cvdMode === 'none' ? currentJson : daltonizeLottieJson(currentJson, cvdMode))
   updateExportDocument(currentJson)
   if (selectedSid) highlightSid(currentJson, selectedSid)
   else clearHighlight()

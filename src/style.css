@@ -323,6 +323,57 @@ body {
   padding: 3px 10px;
 }
 
+#cvd-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 500px;
+  font-size: 13px;
+}
+
+#cvd-controls label {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+#cvd-select {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-bg);
+  color: var(--text);
+  font-size: 13px;
+}
+
+#cvd-export-btn {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-bg);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+#cvd-export-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(170, 59, 255, 0.08);
+}
+
+#cvd-select:disabled,
+#cvd-export-btn:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 #playback-controls {
   display: flex;
   align-items: center;
