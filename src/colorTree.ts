@@ -6,6 +6,7 @@ import type { TreeNode } from './lottieSlots.ts'
 // edit should update.
 export function renderColorTree(
   tree: TreeNode[],
+  onColorPreview: (sid: string, hex: string) => void,
   onColorChange: (sid: string, hex: string) => void,
   onColorSelect: (sid: string | null) => void,
   initialSelectedSid: string | null = null,
@@ -27,7 +28,9 @@ export function renderColorTree(
     onColorSelect(selectedSid)
   }
 
-  container.replaceChildren(...tree.map((node) => renderNode(node, 0, onColorChange, selectSid)))
+  container.replaceChildren(
+    ...tree.map((node) => renderNode(node, 0, onColorPreview, onColorChange, selectSid)),
+  )
   if (selectedSid) {
     const selectedRow = container.querySelector<HTMLElement>(`[data-sid="${CSS.escape(selectedSid)}"]`)
     selectedRow?.classList.add('selected')
@@ -38,6 +41,7 @@ export function renderColorTree(
 function renderNode(
   node: TreeNode,
   depth: number,
+  onColorPreview: (sid: string, hex: string) => void,
   onColorChange: (sid: string, hex: string) => void,
   onColorSelect: (sid: string) => void,
 ): HTMLElement {
@@ -59,6 +63,7 @@ function renderNode(
     swatch.className = 'color-swatch'
     swatch.value = node.color
     swatch.addEventListener('click', (event) => event.stopPropagation())
+    swatch.addEventListener('input', () => onColorPreview(sid, swatch.value))
     swatch.addEventListener('change', () => onColorChange(sid, swatch.value))
 
     row.addEventListener('click', () => onColorSelect(sid))
@@ -94,7 +99,9 @@ function renderNode(
   const childrenContainer = document.createElement('div')
   childrenContainer.className = 'tree-children'
   childrenContainer.append(
-    ...node.children.map((child) => renderNode(child, depth + 1, onColorChange, onColorSelect)),
+    ...node.children.map((child) =>
+      renderNode(child, depth + 1, onColorPreview, onColorChange, onColorSelect),
+    ),
   )
   wrapper.appendChild(childrenContainer)
 
