@@ -33,12 +33,16 @@ const exportBtn = document.querySelector<HTMLButtonElement>('#export-btn')!
 const initializeColorsBtn = document.querySelector<HTMLButtonElement>('#initialize-colors-btn')!
 const undoBtn = document.querySelector<HTMLButtonElement>('#undo-btn')!
 const notification = document.querySelector<HTMLDivElement>('#notification')!
+const hierarchyPanel = document.querySelector<HTMLElement>('#hierarchy-panel')!
 const hierarchyTree = document.querySelector<HTMLDivElement>('#hierarchy-tree')!
+const renderArea = document.querySelector<HTMLElement>('#render-area')!
 const canvasFrame = document.querySelector<HTMLDivElement>('#canvas-frame')!
 const cvdSelect = document.querySelector<HTMLSelectElement>('#cvd-select')!
 let clearTreeSelection = () => {}
 
+hierarchyPanel.addEventListener('click', handleHierarchyPanelClick)
 hierarchyTree.addEventListener('click', handleHierarchyTreeClick)
+renderArea.addEventListener('click', handleRenderAreaClick)
 canvasFrame.addEventListener('click', clearSelection)
 let currentJson: string | null = null
 let baselineJson: string | null = null
@@ -146,10 +150,24 @@ function clearSelection() {
   handleColorSelect(null)
 }
 
+function handleHierarchyPanelClick(event: MouseEvent) {
+  const target = event.target
+  if (!(target instanceof Element)) return
+  if (target.closest('button, label, .color-row, .tree-row')) return
+  clearSelection()
+}
+
 function handleHierarchyTreeClick(event: MouseEvent) {
   const target = event.target
   if (!(target instanceof Element)) return
   if (target.closest('.color-row, .tree-row')) return
+  clearSelection()
+}
+
+function handleRenderAreaClick(event: MouseEvent) {
+  const target = event.target
+  if (!(target instanceof Element)) return
+  if (target.closest('#canvas-frame, #canvas-size, #cvd-controls, #playback-controls')) return
   clearSelection()
 }
 
