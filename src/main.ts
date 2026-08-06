@@ -33,7 +33,13 @@ const exportBtn = document.querySelector<HTMLButtonElement>('#export-btn')!
 const initializeColorsBtn = document.querySelector<HTMLButtonElement>('#initialize-colors-btn')!
 const undoBtn = document.querySelector<HTMLButtonElement>('#undo-btn')!
 const notification = document.querySelector<HTMLDivElement>('#notification')!
+const hierarchyTree = document.querySelector<HTMLDivElement>('#hierarchy-tree')!
+const canvasFrame = document.querySelector<HTMLDivElement>('#canvas-frame')!
 const cvdSelect = document.querySelector<HTMLSelectElement>('#cvd-select')!
+let clearTreeSelection = () => {}
+
+hierarchyTree.addEventListener('click', handleHierarchyTreeClick)
+canvasFrame.addEventListener('click', clearSelection)
 let currentJson: string | null = null
 let baselineJson: string | null = null
 let selectedSid: string | null = null
@@ -66,7 +72,7 @@ async function handleFile(file: File) {
     selectedSid = null
     cvdMode = 'none'
     cvdSelect.value = 'none'
-    renderColorTree(tree, handleColorPreview, handleColorChange, handleColorSelect)
+    clearTreeSelection = renderColorTree(tree, handleColorPreview, handleColorChange, handleColorSelect)
     renderLottie(json)
     clearHighlight()
     resetPlaybackUI()
@@ -135,6 +141,18 @@ function handleColorSelect(sid: string | null) {
   highlightSid(currentJson, sid)
 }
 
+function clearSelection() {
+  clearTreeSelection()
+  handleColorSelect(null)
+}
+
+function handleHierarchyTreeClick(event: MouseEvent) {
+  const target = event.target
+  if (!(target instanceof Element)) return
+  if (target.closest('.color-row, .tree-row')) return
+  clearSelection()
+}
+
 function initializeColors() {
   if (!baselineJson) {
     showNotification(t('notify.uploadFirst'))
@@ -193,7 +211,7 @@ function refreshColorState() {
   if (!currentJson) return
 
   const { tree } = ensureSlots(currentJson)
-  renderColorTree(tree, handleColorPreview, handleColorChange, handleColorSelect, selectedSid)
+  clearTreeSelection = renderColorTree(tree, handleColorPreview, handleColorChange, handleColorSelect, selectedSid)
   applySlotColors(cvdMode === 'none' ? currentJson : daltonizeLottieJson(currentJson, cvdMode))
   updateExportDocument(currentJson)
   if (selectedSid) highlightSid(currentJson, selectedSid)

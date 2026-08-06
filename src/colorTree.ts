@@ -10,7 +10,7 @@ export function renderColorTree(
   onColorChange: (sid: string, hex: string) => void,
   onColorSelect: (sid: string | null) => void,
   initialSelectedSid: string | null = null,
-) {
+): () => void {
   const container = document.querySelector<HTMLDivElement>('#hierarchy-tree')!
   let selectedSid = initialSelectedSid
 
@@ -35,6 +35,14 @@ export function renderColorTree(
     const selectedRow = container.querySelector<HTMLElement>(`[data-sid="${CSS.escape(selectedSid)}"]`)
     selectedRow?.classList.add('selected')
     selectedRow?.setAttribute('aria-selected', 'true')
+  }
+
+  return () => {
+    selectedSid = null
+    container.querySelectorAll<HTMLElement>('.color-row.selected').forEach((row) => {
+      row.classList.remove('selected')
+      row.setAttribute('aria-selected', 'false')
+    })
   }
 }
 
