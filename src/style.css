@@ -5,6 +5,46 @@
   --text: #e4e6eb;
   --text-muted: #8b8f99;
   --accent: #aa3bff;
+  --scrollbar-thumb: #343745;
+  --scrollbar-thumb-hover: #474b5c;
+
+  /* Tells the browser to render native UI (scrollbars, form controls) on a
+     dark base instead of the light default. */
+  color-scheme: dark;
+
+  /* Firefox. Both properties inherit, so declaring them here covers every
+     scroll container in the app. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+/* WebKit/Blink */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  /* The transparent border plus padding-box clipping leaves breathing room
+     around the thumb without a separate track color. */
+  background: var(--scrollbar-thumb);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 * {
