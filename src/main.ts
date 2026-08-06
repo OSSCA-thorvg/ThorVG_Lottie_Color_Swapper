@@ -22,6 +22,12 @@ import { hexToRgba, rgbaToHex } from './colorUtils.ts'
 import { createColorHistory } from './colorHistory.ts'
 import { initCvdControls } from './cvdControls.ts'
 import { daltonizeColor, daltonizeLottieJson, type CvdMode } from './cvdCorrection.ts'
+import { initI18n, onLangChange, t } from './i18n.ts'
+import { initLangControls } from './langControls.ts'
+
+// Before anything else: the modules below read text out of the DOM, and the
+// DOM has no text until the dictionary is applied.
+initI18n()
 
 const exportBtn = document.querySelector<HTMLButtonElement>('#export-btn')!
 const initializeColorsBtn = document.querySelector<HTMLButtonElement>('#initialize-colors-btn')!
@@ -39,6 +45,11 @@ let notificationTimer: ReturnType<typeof setTimeout> | null = null
 initFileUpload(handleFile)
 initPlaybackControls()
 initCvdControls(handleCvdModeChange)
+initLangControls()
+// A notification is a sentence in the old language once the toggle flips, and
+// there's no way to re-render it (the parameterized ones are already
+// interpolated), so it's dismissed instead.
+onLangChange(hideNotification)
 exportBtn.addEventListener('click', handleExport)
 initializeColorsBtn.addEventListener('click', initializeColors)
 undoBtn.addEventListener('click', undoColorChange)
@@ -64,7 +75,7 @@ async function handleFile(file: File) {
     exportBtn.disabled = false
     cvdSelect.disabled = false
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to load Lottie file'
+    const message = err instanceof Error ? err.message : t('error.loadFailed')
     alert(message)
   }
 }
@@ -111,7 +122,7 @@ function handleColorChange(sid: string, hex: string) {
   if (!updateColor(sid, hex)) return
 
   colorHistory.record(snapshot)
-  showNotification('색상을 변경했습니다.')
+  showNotification(t('notify.colorChanged'))
   refreshColorState()
 }
 
@@ -126,7 +137,7 @@ function handleColorSelect(sid: string | null) {
 
 function initializeColors() {
   if (!baselineJson) {
-    showNotification('색상을 초기화하려면 먼저 Lottie 파일을 업로드하세요.')
+    showNotification(t('notify.uploadFirst'))
     return
   }
 
@@ -134,20 +145,20 @@ function initializeColors() {
   colorHistory.clear()
   pendingColorEdit = null
   refreshColorState()
-  showNotification('색상을 업로드 당시 원래 색상으로 초기화했습니다.')
+  showNotification(t('notify.reset'))
 }
 
 function undoColorChange() {
   const previousJson = colorHistory.undo()
   if (!previousJson) {
-    showNotification('실행 취소할 색상 변경이 없습니다.')
+    showNotification(t('notify.nothingToUndo'))
     return
   }
 
   currentJson = previousJson
   pendingColorEdit = null
   refreshColorState()
-  showNotification('최근 색상 변경만 실행 취소했습니다.')
+  showNotification(t('notify.undone'))
 }
 
 function handleUndoShortcut(event: KeyboardEvent) {
@@ -168,14 +179,14 @@ function handleCvdModeChange(mode: CvdMode) {
 function handleExport() {
   if (cvdMode === 'none') {
     downloadExport()
-    showNotification('원본 색상 그대로 내보냈습니다.')
+    showNotification(t('notify.exportedOriginal'))
     return
   }
 
   if (!currentJson) return
   downloadAccessibleExport(daltonizeLottieJson(currentJson, cvdMode), cvdMode)
   // Label comes from the <option> so it can't drift out of sync with the UI.
-  showNotification(`${cvdSelect.selectedOptions[0]?.textContent ?? ''} 버전을 내보냈습니다.`)
+  showNotification(t('notify.exportedCvd', { mode: cvdSelect.selectedOptions[0]?.textContent ?? '' }))
 }
 
 function refreshColorState() {
@@ -199,7 +210,9 @@ function showNotification(message: string) {
   notification.textContent = message
   notification.classList.add('visible')
   if (notificationTimer) clearTimeout(notificationTimer)
-  notificationTimer = setTimeout(() => {
-    notification.classList.remove('visible')
-  }, 3000)
+  notificationTimer = setTimeout(hideNotification, 3000)
+}
+
+function hideNotification() {
+  notification.classList.remove('visible')
 }

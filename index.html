@@ -8,45 +8,62 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <!-- Elements carrying data-i18n / data-i18n-aria-label get their text from
+         src/i18n.ts at startup, so they are intentionally left empty here. -->
     <div id="app-layout">
       <header id="app-header">
         <div class="header-text">
-          <h1>Lottie Color Swapper</h1>
-          <p class="subtitle">
-            파일을 업로드해 색상을 직접 편집하거나, 색각이상 보정을 적용하여 다운로드할 수 있습니다
-          </p>
+          <h1 data-i18n="app.title"></h1>
+          <p class="subtitle" data-i18n="header.subtitle"></p>
+        </div>
+        <div id="lang-toggle" role="group" data-i18n-aria-label="lang.groupAria">
+          <span class="lang-toggle-icon" aria-hidden="true">🌐</span>
+          <!-- The visible labels are language codes, identical in both
+               languages; the translated name goes on aria-label so a screen
+               reader announces "Korean" rather than the letters K-O. -->
+          <button class="lang-option" type="button" data-lang="ko" data-i18n-aria-label="lang.ko">
+            KO
+          </button>
+          <button class="lang-option" type="button" data-lang="en" data-i18n-aria-label="lang.en">
+            EN
+          </button>
         </div>
       </header>
       <div id="app-body">
         <aside id="hierarchy-panel">
           <div id="upload-section">
-            <label for="lottie-upload" class="upload-button">Lottie 파일 업로드</label>
+            <label for="lottie-upload" class="upload-button" data-i18n="upload.button"></label>
             <input type="file" id="lottie-upload" accept="application/json,.json,.lottie" />
             <div id="color-actions">
-              <button id="initialize-colors-btn" type="button" disabled>색상 초기화</button>
-              <button id="undo-btn" type="button" disabled>실행 취소</button>
+              <button
+                id="initialize-colors-btn"
+                type="button"
+                data-i18n="action.initialize"
+                disabled
+              ></button>
+              <button id="undo-btn" type="button" data-i18n="action.undo" disabled></button>
             </div>
-            <button id="export-btn" type="button" disabled>JSON으로 내보내기</button>
+            <button id="export-btn" type="button" data-i18n="action.export" disabled></button>
             <div id="notification" role="status" aria-live="polite"></div>
           </div>
           <div id="hierarchy-tree"></div>
         </aside>
         <main id="render-area">
           <div id="canvas-frame">
-            <span id="canvas-ribbon">Preview</span>
+            <span id="canvas-ribbon" data-i18n="canvas.ribbon"></span>
             <canvas id="canvas"></canvas>
           </div>
           <span id="canvas-size"></span>
           <div id="cvd-controls">
-            <label for="cvd-select">색각이상 보정</label>
+            <label for="cvd-select" data-i18n="cvd.label"></label>
             <select id="cvd-select" disabled>
-              <option value="none">없음</option>
-              <option value="protanopia">적색맹용 보정</option>
-              <option value="deuteranopia">녹색맹용 보정</option>
-              <option value="tritanopia">청색맹용 보정</option>
+              <option value="none" data-i18n="cvd.none"></option>
+              <option value="protanopia" data-i18n="cvd.protanopia"></option>
+              <option value="deuteranopia" data-i18n="cvd.deuteranopia"></option>
+              <option value="tritanopia" data-i18n="cvd.tritanopia"></option>
             </select>
             <p id="cvd-credit">
-              색각 모델:
+              <span data-i18n="cvd.credit"></span>
               <a
                 href="https://vision.psychol.cam.ac.uk/jdmollon/papers/colourmaps.pdf"
                 target="_blank"
@@ -56,8 +73,8 @@
             </p>
           </div>
           <div id="playback-controls">
-            <button id="play-pause-btn" type="button" aria-label="재생/일시정지">⏸</button>
-            <button id="stop-btn" type="button" aria-label="정지">⏹</button>
+            <button id="play-pause-btn" type="button" data-i18n-aria-label="playback.playPause">⏸</button>
+            <button id="stop-btn" type="button" data-i18n-aria-label="playback.stop">⏹</button>
             <input id="seek-bar" type="range" min="0" max="0" value="0" step="1" />
             <span id="frame-counter">0 / 0</span>
           </div>
@@ -65,7 +82,7 @@
       </div>
     </div>
     <div id="drop-overlay">
-      <div class="drop-overlay-box">Lottie 파일을 여기에 놓으세요</div>
+      <div class="drop-overlay-box" data-i18n="drop.overlay"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

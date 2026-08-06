@@ -81,6 +81,65 @@ body {
   backdrop-filter: blur(8px);
 }
 
+#lang-toggle {
+  /* Pushed to the far end so it never crowds the subtitle, which is the
+     longest string in the header and the one that reflows on translation. */
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  /* Tighter on the right: the segments carry their own padding, while the
+     icon needs breathing room against the border. */
+  padding: 4px 4px 4px 10px;
+  /* Accent-tinted rather than the muted outline the panel buttons use: this
+     sits alone in the header with nothing around it to read as a control, so
+     it has to announce itself. The fill stays on the active segment only, so
+     the group as a whole doesn't outrank the export action. */
+  border: 1px solid rgba(170, 59, 255, 0.55);
+  border-radius: 10px;
+  background: rgba(170, 59, 255, 0.14);
+}
+
+.lang-toggle-icon {
+  margin-right: 4px;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.lang-option {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.lang-option:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* After the hover rule on purpose — equal specificity, so the selected
+   segment keeps its fill while the pointer is over it. */
+.lang-option[aria-pressed='true'] {
+  background: var(--accent);
+  color: #fff;
+}
+
+.lang-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .header-text h1 {
   margin: 0;
   font-size: 20px;
