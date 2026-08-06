@@ -4,7 +4,34 @@ import { createHighlightLottie } from './lottieHighlight.ts'
 
 const CANVAS_SIZE = { width: 800, height: 800 }
 
-export const TVG = await ThorVG.init({ renderer: 'gl' })
+// WebGL is the library's own default and the fast path, but it can be
+// unavailable — no GPU access, a driver blocklist, or a GPU switch when an
+// external display is plugged in. Left unhandled that rejects this module at
+// top-level await, taking the whole app down with no visible error.
+//
+// It has to be decided up front rather than caught: ThorVG caches the engine
+// on first init(), so a second init() with a different renderer hands back the
+// original one and the retry fails exactly like the first attempt.
+function webglAvailable(): boolean {
+  try {
+    const probe = document.createElement('canvas')
+    const gl = probe.getContext('webgl2') ?? probe.getContext('webgl')
+    if (!gl) return false
+    // Drop the probe's context right away — browsers cap how many a page may
+    // hold at once, and the real canvas still needs one.
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
+    return true
+  } catch {
+    return false
+  }
+}
+
+const renderer = webglAvailable() ? 'gl' : 'sw'
+if (renderer === 'sw') {
+  console.warn('ThorVG: WebGL unavailable, using software rendering.')
+}
+
+export const TVG = await ThorVG.init({ renderer })
 
 export const canvas = new TVG.Canvas('#canvas', CANVAS_SIZE)
 
