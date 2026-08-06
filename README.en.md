@@ -15,8 +15,9 @@ A hackathon project built for week 4 of the ThorVG track of the [OSSCA 2026 prog
 - Live color editing through the color picker (uninterrupted while the animation plays)
 - Undo (`Ctrl+Z`) and reset to the colors the file had at upload time
 - Three color vision deficiency corrections (protanopia, deuteranopia, tritanopia) — applied to both the preview and the export
-- Playback controls — `Space` to play/pause, `←` `→` to step frames
-- JSON export, Korean/English interface
+- Playback controls — play/pause, stop, a frame seek bar, `Space` to play/pause, `←` `→` to step frames
+- JSON export with color vision deficiency correction applied, Korean/English interface
+- Automatic deployment to GitHub Pages on pushes to `main`
 
 ## Using ThorVG Slots
 
