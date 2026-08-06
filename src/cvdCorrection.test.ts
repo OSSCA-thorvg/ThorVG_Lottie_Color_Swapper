@@ -168,4 +168,50 @@ describe('daltonizeLottieJson', () => {
     expect(result.slots.a.p.k).not.toEqual([0.8, 0.2, 0.1, 1])
     expect(result.slots.b.p.k).not.toEqual([0.1, 0.6, 0.9, 1])
   })
+
+  // Some exporters write colors without an alpha component. Requiring four
+  // components skipped those silently — the correction appeared to do nothing
+  // at all on such a file, while color editing (which always writes four)
+  // kept working, so nothing pointed at the cause.
+  it('corrects colors written without an alpha component', () => {
+    const json = JSON.stringify({ slots: { a: { p: { a: 0, k: [0.898, 0.2235, 0.2078] } } } })
+
+    const result = JSON.parse(daltonizeLottieJson(json, 'deuteranopia')) as {
+      slots: Record<string, { p: { k: number[] } }>
+    }
+
+    expect(result.slots.a.p.k).not.toEqual([0.898, 0.2235, 0.2078])
+  })
+
+  it('keeps the component count the source used', () => {
+    const json = JSON.stringify({
+      slots: {
+        rgb: { p: { a: 0, k: [0.9, 0.2, 0.2] } },
+        rgba: { p: { a: 0, k: [0.9, 0.2, 0.2, 1] } },
+      },
+    })
+
+    const result = JSON.parse(daltonizeLottieJson(json, 'protanopia')) as {
+      slots: Record<string, { p: { k: number[] } }>
+    }
+
+    expect(result.slots.rgb.p.k).toHaveLength(3)
+    expect(result.slots.rgba.p.k).toHaveLength(4)
+  })
+
+  it('leaves a slot alone when its color is not a usable array', () => {
+    const json = JSON.stringify({
+      slots: {
+        animated: { p: { a: 1, k: [{ t: 0, s: [1, 0, 0] }] } },
+        malformed: { p: { a: 0, k: [0.5, 0.5] } },
+      },
+    })
+
+    const result = JSON.parse(daltonizeLottieJson(json, 'tritanopia')) as {
+      slots: Record<string, { p: { k: unknown } }>
+    }
+
+    expect(result.slots.animated.p.k).toEqual([{ t: 0, s: [1, 0, 0] }])
+    expect(result.slots.malformed.p.k).toEqual([0.5, 0.5])
+  })
 })

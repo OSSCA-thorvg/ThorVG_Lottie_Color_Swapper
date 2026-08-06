@@ -171,13 +171,18 @@ export function daltonizeLottieJson(json: string, mode: CvdMode): string {
     const property = (slot as Record<string, unknown>).p
     if (typeof property !== 'object' || property === null) continue
 
+    // Lottie writes a color as [r,g,b] or [r,g,b,a] depending on the exporter,
+    // and hexToRgba() always produces the 4-component form — so a document can
+    // hold both at once, and requiring four here would silently skip every
+    // color the user had not yet edited. The original length is preserved so
+    // the correction never adds an alpha channel the source did not have.
     const value = (property as Record<string, unknown>).k
-    if (Array.isArray(value) && value.length === 4) {
-      ;(property as Record<string, unknown>).k = daltonizeColor(
-        value as [number, number, number, number],
-        mode,
-      )
-    }
+    if (!Array.isArray(value) || (value.length !== 3 && value.length !== 4)) continue
+
+    const [r, g, b, a] = value as number[]
+    const corrected = daltonizeColor([r, g, b, a ?? 1], mode)
+    ;(property as Record<string, unknown>).k =
+      value.length === 3 ? corrected.slice(0, 3) : corrected
   }
 
   return JSON.stringify(data)
